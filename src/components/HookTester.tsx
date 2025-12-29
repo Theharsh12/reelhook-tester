@@ -74,7 +74,7 @@ export function HookTester() {
   return (
     <div className="w-full max-w-xl mx-auto">
       {/* Input Card */}
-      <div className="bg-card rounded-2xl shadow-card p-8">
+      <div className="bg-card rounded-2xl shadow-card border border-border p-8">
         <div className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
@@ -117,7 +117,7 @@ export function HookTester() {
 
       {/* Results Card */}
       {result && !isAnalyzing && (
-        <div className="mt-6 bg-card rounded-2xl shadow-card p-8 animate-slide-up">
+        <div className="mt-6 bg-card rounded-2xl shadow-card border border-border p-8 animate-slide-up">
           {/* Score Section */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg mb-4">

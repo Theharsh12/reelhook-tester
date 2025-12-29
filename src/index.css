@@ -9,47 +9,49 @@
 
 @layer base {
   :root {
-    --background: 30 20% 98%;
-    --foreground: 240 10% 10%;
+    --background: 240 15% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card: 240 12% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
+    --popover: 240 12% 12%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 16 85% 60%;
+    --primary: 280 100% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 30% 95%;
-    --secondary-foreground: 240 10% 20%;
+    --secondary: 240 10% 18%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 30 20% 94%;
-    --muted-foreground: 240 5% 45%;
+    --muted: 240 10% 20%;
+    --muted-foreground: 240 5% 55%;
 
-    --accent: 340 75% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 180 100% 50%;
+    --accent-foreground: 240 15% 8%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 15% 90%;
-    --input: 30 15% 90%;
-    --ring: 16 85% 60%;
+    --border: 240 10% 20%;
+    --input: 240 10% 18%;
+    --ring: 280 100% 65%;
 
     --radius: 1rem;
 
     /* Custom tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(16 85% 60%), hsl(340 75% 55%));
-    --gradient-subtle: linear-gradient(180deg, hsl(30 20% 98%), hsl(30 15% 95%));
-    --shadow-card: 0 4px 24px -4px hsl(240 10% 10% / 0.08);
-    --shadow-hover: 0 8px 32px -4px hsl(240 10% 10% / 0.12);
+    --gradient-primary: linear-gradient(135deg, hsl(280 100% 65%), hsl(180 100% 50%));
+    --gradient-subtle: linear-gradient(180deg, hsl(240 15% 8%), hsl(240 12% 12%));
+    --shadow-card: 0 4px 24px -4px hsl(280 100% 65% / 0.15);
+    --shadow-hover: 0 8px 32px -4px hsl(280 100% 65% / 0.25);
+    --glow-primary: 0 0 20px hsl(280 100% 65% / 0.4);
+    --glow-accent: 0 0 20px hsl(180 100% 50% / 0.4);
 
     /* Strength colors */
     --strength-weak: 0 72% 51%;
-    --strength-average: 45 93% 47%;
-    --strength-strong: 142 71% 45%;
-    --strength-viral: 280 85% 55%;
+    --strength-average: 45 93% 55%;
+    --strength-strong: 160 100% 45%;
+    --strength-viral: 280 100% 65%;
   }
 }
 
@@ -72,6 +74,14 @@
 
   .gradient-bg {
     background-image: var(--gradient-primary);
+  }
+
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-accent {
+    box-shadow: var(--glow-accent);
   }
 
   .animate-fade-in {

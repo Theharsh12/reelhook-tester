@@ -65,6 +65,8 @@ export default {
       boxShadow: {
         card: "var(--shadow-card)",
         hover: "var(--shadow-hover)",
+        "glow-primary": "var(--glow-primary)",
+        "glow-accent": "var(--glow-accent)",
       },
       keyframes: {
         "accordion-down": {
