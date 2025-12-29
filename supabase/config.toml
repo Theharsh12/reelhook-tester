@@ -1,0 +1,4 @@
+project_id = "ofaeclgffjvdeeezjbyl"
+
+[functions.analyze-hook]
+verify_jwt = false
