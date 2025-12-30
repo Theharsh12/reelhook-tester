@@ -7,27 +7,25 @@ import { useToast } from "@/hooks/use-toast";
 
 interface HookResult {
   score: number;
-  strength: "Weak" | "Average" | "Strong" | "Viral-Potential";
+  strength: string;
   reasons: string[];
   suggestions: string[];
 }
 
-const getStrengthColor = (strength: HookResult["strength"]) => {
-  switch (strength) {
-    case "Weak": return "text-strength-weak";
-    case "Average": return "text-strength-average";
-    case "Strong": return "text-strength-strong";
-    case "Viral-Potential": return "text-strength-viral";
-  }
-};
+const exampleHooks = [
+  { label: "Curiosity", hook: "Nobody talks about this productivity hack that changed my life" },
+  { label: "Problem", hook: "Stop wasting 3 hours every morning doing this" },
+  { label: "Bold Claim", hook: "I made $10k in 30 days using this one strategy" },
+  { label: "Question", hook: "Why do 90% of creators fail in their first year?" },
+  { label: "Weak Example", hook: "Here are some tips for you" },
+];
 
-const getStrengthBg = (strength: HookResult["strength"]) => {
-  switch (strength) {
-    case "Weak": return "bg-strength-weak/10";
-    case "Average": return "bg-strength-average/10";
-    case "Strong": return "bg-strength-strong/10";
-    case "Viral-Potential": return "bg-strength-viral/10";
-  }
+const getStrengthStyle = (strength: string) => {
+  if (strength.includes("Scroll-Past")) return { text: "text-strength-weak", bg: "bg-strength-weak/10" };
+  if (strength.includes("Pattern Break")) return { text: "text-strength-average", bg: "bg-strength-average/10" };
+  if (strength.includes("Scroll-Stopping")) return { text: "text-strength-strong", bg: "bg-strength-strong/10" };
+  if (strength.includes("Viral")) return { text: "text-strength-viral", bg: "bg-strength-viral/10" };
+  return { text: "text-muted-foreground", bg: "bg-muted/10" };
 };
 
 export function HookTester() {
@@ -82,6 +80,11 @@ export function HookTester() {
   const charCount = hook.length;
   const maxChars = 200;
 
+  const handleExampleClick = (exampleHook: string) => {
+    setHook(exampleHook);
+    setResult(null);
+  };
+
   return (
     <div className="w-full max-w-xl mx-auto">
       {/* Input Card */}
@@ -101,6 +104,22 @@ export function HookTester() {
               <span className={`text-xs font-medium ${charCount >= maxChars ? "text-destructive" : "text-muted-foreground"}`}>
                 {charCount}/{maxChars}
               </span>
+            </div>
+          </div>
+
+          {/* Example Hooks */}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Try an example:</p>
+            <div className="flex flex-wrap gap-2">
+              {exampleHooks.map((example) => (
+                <button
+                  key={example.label}
+                  onClick={() => handleExampleClick(example.hook)}
+                  className="px-3 py-1.5 text-xs font-medium rounded-full bg-secondary/70 text-secondary-foreground hover:bg-primary/20 hover:text-primary transition-colors border border-border/50"
+                >
+                  {example.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -134,7 +153,7 @@ export function HookTester() {
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg mb-4">
               <span className="text-3xl font-bold text-primary-foreground">{result.score}</span>
             </div>
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStrengthBg(result.strength)} ${getStrengthColor(result.strength)}`}>
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStrengthStyle(result.strength).bg} ${getStrengthStyle(result.strength).text}`}>
               <TrendingUp className="w-4 h-4" />
               <span className="font-semibold">{result.strength}</span>
             </div>
