@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,7 +34,18 @@ export function HookTester() {
   const [hook, setHook] = useState("");
   const [result, setResult] = useState<HookResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const { toast } = useToast();
+
+  const handleCopy = async (text: string, index: number) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    toast({
+      title: "Copied to clipboard",
+      description: "Hook suggestion copied successfully",
+    });
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
 
   const handleTest = async () => {
     if (!hook.trim()) return;
@@ -160,10 +171,21 @@ export function HookTester() {
                 {result.suggestions.map((suggestion, index) => (
                   <div 
                     key={index}
-                    className="p-4 rounded-xl bg-secondary/50 text-sm text-secondary-foreground animate-fade-in"
+                    className="group flex items-start gap-3 p-4 rounded-xl bg-secondary/50 animate-fade-in"
                     style={{ animationDelay: `${(index + 3) * 100}ms` }}
                   >
-                    {suggestion}
+                    <p className="flex-1 text-sm text-secondary-foreground">{suggestion}</p>
+                    <button
+                      onClick={() => handleCopy(suggestion, index)}
+                      className="shrink-0 p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label="Copy suggestion"
+                    >
+                      {copiedIndex === index ? (
+                        <Check className="w-4 h-4 text-strength-strong" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 ))}
               </div>
