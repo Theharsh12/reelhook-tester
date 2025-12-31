@@ -45,9 +45,27 @@ serve(async (req) => {
   try {
     const { hook } = await req.json();
     
+    // Validate input exists and is a string
     if (!hook || typeof hook !== 'string') {
       return new Response(
         JSON.stringify({ error: 'Hook text is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate input length (server-side enforcement matching client-side limit)
+    if (hook.length > 200 || hook.length < 1) {
+      return new Response(
+        JSON.stringify({ error: 'Hook must be between 1 and 200 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate trimmed content
+    const trimmedHook = hook.trim();
+    if (trimmedHook.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Hook cannot be empty' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -56,12 +74,12 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       console.error('LOVABLE_API_KEY is not configured');
       return new Response(
-        JSON.stringify({ error: 'AI service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Service temporarily unavailable' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Analyzing hook:', hook.substring(0, 50) + '...');
+    console.log('Analyzing hook:', trimmedHook.substring(0, 50) + '...');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -73,7 +91,7 @@ serve(async (req) => {
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze this Instagram reel hook:\n\n"${hook}"` }
+          { role: 'user', content: `Analyze this Instagram reel hook:\n\n"${trimmedHook}"` }
         ],
       }),
     });
@@ -82,22 +100,16 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('AI gateway error:', response.status, errorText);
       
-      if (response.status === 429) {
+      // Return generic error messages to avoid exposing internal details
+      if (response.status === 429 || response.status === 402) {
         return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'Usage limit reached. Please check your workspace credits.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'Service temporarily unavailable. Please try again later.' }),
+          { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
       return new Response(
-        JSON.stringify({ error: 'Failed to analyze hook' }),
+        JSON.stringify({ error: 'Unable to analyze hook. Please try again.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -108,7 +120,7 @@ serve(async (req) => {
     if (!content) {
       console.error('No content in AI response:', data);
       return new Response(
-        JSON.stringify({ error: 'Invalid AI response' }),
+        JSON.stringify({ error: 'Unable to analyze hook. Please try again.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -123,7 +135,7 @@ serve(async (req) => {
     } catch (parseError) {
       console.error('Failed to parse AI response:', content);
       return new Response(
-        JSON.stringify({ error: 'Failed to parse analysis' }),
+        JSON.stringify({ error: 'Unable to analyze hook. Please try again.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -137,7 +149,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in analyze-hook function:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
