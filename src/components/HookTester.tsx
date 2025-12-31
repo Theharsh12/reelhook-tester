@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useHookHistory } from "@/hooks/useHookHistory";
 
 interface HookResult {
   score: number;
@@ -11,16 +12,6 @@ interface HookResult {
   reasons: string[];
   suggestions: string[];
 }
-
-interface HistoryItem {
-  id: string;
-  hook: string;
-  result: HookResult;
-  timestamp: number;
-}
-
-const HISTORY_KEY = "hook-tester-history";
-const MAX_HISTORY = 10;
 
 const exampleHooks = [
   { label: "Curiosity", hook: "Nobody talks about this productivity hack that changed my life" },
@@ -43,50 +34,9 @@ export function HookTester() {
   const [result, setResult] = useState<HookResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const saved = localStorage.getItem(HISTORY_KEY);
-    if (saved) {
-      try {
-        setHistory(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse history:", e);
-      }
-    }
-  }, []);
-
-  const saveToHistory = (hookText: string, hookResult: HookResult) => {
-    const newItem: HistoryItem = {
-      id: Date.now().toString(),
-      hook: hookText,
-      result: hookResult,
-      timestamp: Date.now(),
-    };
-    const updated = [newItem, ...history].slice(0, MAX_HISTORY);
-    setHistory(updated);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
-  };
-
-  const deleteFromHistory = (id: string) => {
-    const updated = history.filter((item) => item.id !== id);
-    setHistory(updated);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
-  };
-
-  const clearHistory = () => {
-    setHistory([]);
-    localStorage.removeItem(HISTORY_KEY);
-    toast({ title: "History cleared" });
-  };
-
-  const loadFromHistory = (item: HistoryItem) => {
-    setHook(item.hook);
-    setResult(item.result);
-    setShowHistory(false);
-  };
+  const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
 
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
@@ -119,7 +69,7 @@ export function HookTester() {
 
       const hookResult = data as HookResult;
       setResult(hookResult);
-      saveToHistory(hook.trim(), hookResult);
+      await saveToHistory(hook.trim(), hookResult);
     } catch (error) {
       console.error('Analysis error:', error);
       toast({
@@ -138,6 +88,12 @@ export function HookTester() {
   const handleExampleClick = (exampleHook: string) => {
     setHook(exampleHook);
     setResult(null);
+  };
+
+  const loadFromHistory = (item: { hook: string; result: HookResult }) => {
+    setHook(item.hook);
+    setResult(item.result);
+    setShowHistory(false);
   };
 
   const formatDate = (timestamp: number) => {
@@ -172,7 +128,11 @@ export function HookTester() {
               </button>
             </div>
           </div>
-          {history.length === 0 ? (
+          {historyLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+            </div>
+          ) : history.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">No hooks analyzed yet</p>
           ) : (
             <div className="space-y-2 max-h-64 overflow-y-auto">
