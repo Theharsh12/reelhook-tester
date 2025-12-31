@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,6 +11,16 @@ interface HookResult {
   reasons: string[];
   suggestions: string[];
 }
+
+interface HistoryItem {
+  id: string;
+  hook: string;
+  result: HookResult;
+  timestamp: number;
+}
+
+const HISTORY_KEY = "hook-tester-history";
+const MAX_HISTORY = 10;
 
 const exampleHooks = [
   { label: "Curiosity", hook: "Nobody talks about this productivity hack that changed my life" },
@@ -33,7 +43,50 @@ export function HookTester() {
   const [result, setResult] = useState<HookResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const saved = localStorage.getItem(HISTORY_KEY);
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse history:", e);
+      }
+    }
+  }, []);
+
+  const saveToHistory = (hookText: string, hookResult: HookResult) => {
+    const newItem: HistoryItem = {
+      id: Date.now().toString(),
+      hook: hookText,
+      result: hookResult,
+      timestamp: Date.now(),
+    };
+    const updated = [newItem, ...history].slice(0, MAX_HISTORY);
+    setHistory(updated);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+  };
+
+  const deleteFromHistory = (id: string) => {
+    const updated = history.filter((item) => item.id !== id);
+    setHistory(updated);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem(HISTORY_KEY);
+    toast({ title: "History cleared" });
+  };
+
+  const loadFromHistory = (item: HistoryItem) => {
+    setHook(item.hook);
+    setResult(item.result);
+    setShowHistory(false);
+  };
 
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
@@ -64,7 +117,9 @@ export function HookTester() {
         throw new Error(data.error);
       }
 
-      setResult(data as HookResult);
+      const hookResult = data as HookResult;
+      setResult(hookResult);
+      saveToHistory(hook.trim(), hookResult);
     } catch (error) {
       console.error('Analysis error:', error);
       toast({
@@ -85,8 +140,71 @@ export function HookTester() {
     setResult(null);
   };
 
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  };
+
   return (
     <div className="w-full max-w-xl mx-auto">
+      {/* History Panel */}
+      {showHistory && (
+        <div className="mb-6 bg-card rounded-2xl shadow-card border border-border p-6 animate-fade-in">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <History className="w-4 h-4 text-primary" />
+              Hook History
+            </h3>
+            <div className="flex items-center gap-2">
+              {history.length > 0 && (
+                <button
+                  onClick={clearHistory}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  Clear all
+                </button>
+              )}
+              <button
+                onClick={() => setShowHistory(false)}
+                className="p-1 rounded-lg hover:bg-muted transition-colors"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
+          {history.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">No hooks analyzed yet</p>
+          ) : (
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {history.map((item) => (
+                <div
+                  key={item.id}
+                  className="group flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer"
+                  onClick={() => loadFromHistory(item)}
+                >
+                  <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${getStrengthStyle(item.result.strength).bg} ${getStrengthStyle(item.result.strength).text}`}>
+                    {item.result.score}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground truncate">{item.hook}</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(item.timestamp)}</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteFromHistory(item.id);
+                    }}
+                    className="shrink-0 p-2 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Input Card */}
       <div className="bg-card rounded-2xl shadow-card border border-border p-8">
         <div className="space-y-6">
@@ -123,13 +241,14 @@ export function HookTester() {
             </div>
           </div>
 
-          <Button
-            variant="gradient"
-            size="lg"
-            onClick={handleTest}
-            disabled={!hook.trim() || isAnalyzing}
-            className="w-full"
-          >
+          <div className="flex gap-3">
+            <Button
+              variant="gradient"
+              size="lg"
+              onClick={handleTest}
+              disabled={!hook.trim() || isAnalyzing}
+              className="flex-1"
+            >
             {isAnalyzing ? (
               <>
                 <Sparkles className="animate-spin" />
@@ -140,8 +259,22 @@ export function HookTester() {
                 <Zap />
                 Test Hook
               </>
-            )}
-          </Button>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setShowHistory(!showHistory)}
+              className="shrink-0 relative"
+            >
+              <History className="w-5 h-5" />
+              {history.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                  {history.length}
+                </span>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
