@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
@@ -115,12 +116,50 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Apply rate limiting
-  const clientIP = getClientIP(req);
-  const rateLimitResult = checkRateLimit(clientIP);
+  // Verify authentication
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    console.warn('Missing authorization header');
+    return new Response(
+      JSON.stringify({ error: 'Authentication required' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Verify the JWT token and get the user
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables not configured');
+    return new Response(
+      JSON.stringify({ error: 'Service temporarily unavailable' }),
+      { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    console.warn('Invalid or expired token:', authError?.message);
+    return new Response(
+      JSON.stringify({ error: 'Invalid or expired authentication token' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  console.log('Authenticated user:', user.id);
+
+  // Apply rate limiting (now per user instead of per IP for authenticated users)
+  const rateLimitKey = user.id;
+  const rateLimitResult = checkRateLimit(rateLimitKey);
   
   if (!rateLimitResult.allowed) {
-    console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+    console.warn(`Rate limit exceeded for user: ${user.id}`);
     return new Response(
       JSON.stringify({ error: 'Too many requests. Please try again later.' }),
       { 
