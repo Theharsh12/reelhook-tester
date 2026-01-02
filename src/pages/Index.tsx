@@ -19,12 +19,14 @@ const Index = () => {
           <div className="w-8 h-8 animate-pulse bg-muted rounded-full" />
         ) : user ? (
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/80 border border-border">
-              <User className="w-4 h-4 text-primary" />
-              <span className="text-sm text-foreground max-w-[120px] truncate">
-                {user.email}
-              </span>
-            </div>
+            <Link to="/profile">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/80 border border-border hover:bg-secondary transition-colors cursor-pointer">
+                <User className="w-4 h-4 text-primary" />
+                <span className="text-sm text-foreground max-w-[120px] truncate">
+                  {user.email}
+                </span>
+              </div>
+            </Link>
             <Button
               variant="ghost"
               size="sm"
