@@ -5,6 +5,7 @@ import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HookResult {
   score: number;
@@ -37,6 +38,7 @@ export function HookTester() {
   const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
   const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
+  const { user } = useAuth();
 
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
@@ -50,6 +52,15 @@ export function HookTester() {
 
   const handleTest = async () => {
     if (!hook.trim()) return;
+    
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to analyze hooks",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsAnalyzing(true);
     setResult(null);
@@ -206,8 +217,9 @@ export function HookTester() {
               variant="gradient"
               size="lg"
               onClick={handleTest}
-              disabled={!hook.trim() || isAnalyzing}
+              disabled={!hook.trim() || isAnalyzing || !user}
               className="flex-1"
+              title={!user ? "Sign in to analyze hooks" : undefined}
             >
             {isAnalyzing ? (
               <>
@@ -217,7 +229,7 @@ export function HookTester() {
             ) : (
               <>
                 <Zap />
-                Test Hook
+                {user ? "Test Hook" : "Sign in to Test"}
               </>
               )}
             </Button>
