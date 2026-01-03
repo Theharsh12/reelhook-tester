@@ -1,46 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Clock } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
-
-const DAILY_FREE_LIMIT = 3;
-const STORAGE_KEY = "hook_tester_usage";
-
-interface UsageData {
-  date: string;
-  count: number;
-}
-
-function getUsageData(): UsageData {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const data = JSON.parse(stored) as UsageData;
-      const today = new Date().toDateString();
-      if (data.date === today) {
-        return data;
-      }
-    }
-  } catch (e) {
-    // Ignore parse errors
-  }
-  return { date: new Date().toDateString(), count: 0 };
-}
-
-function incrementUsage(): UsageData {
-  const data = getUsageData();
-  data.count += 1;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  return data;
-}
-
-function getRemainingTests(): number {
-  const data = getUsageData();
-  return Math.max(0, DAILY_FREE_LIMIT - data.count);
-}
 
 interface HookResult {
   score: number;
@@ -71,8 +35,6 @@ export function HookTester() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [remainingTests, setRemainingTests] = useState(getRemainingTests);
-  const [limitReached, setLimitReached] = useState(false);
   const { toast } = useToast();
   const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
 
@@ -89,16 +51,8 @@ export function HookTester() {
   const handleTest = async () => {
     if (!hook.trim()) return;
     
-    // Check daily limit
-    const remaining = getRemainingTests();
-    if (remaining <= 0) {
-      setLimitReached(true);
-      return;
-    }
-    
     setIsAnalyzing(true);
     setResult(null);
-    setLimitReached(false);
 
     try {
       const { data, error } = await supabase.functions.invoke('analyze-hook', {
@@ -115,10 +69,6 @@ export function HookTester() {
 
       const hookResult = data as HookResult;
       setResult(hookResult);
-      
-      // Track usage
-      incrementUsage();
-      setRemainingTests(getRemainingTests());
       
       await saveToHistory(hook.trim(), hookResult);
     } catch (error) {
@@ -252,41 +202,24 @@ export function HookTester() {
             </div>
           </div>
 
-          {/* Limit Reached Message */}
-          {limitReached && (
-            <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 animate-fade-in">
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-foreground">
-                    You've used all {DAILY_FREE_LIMIT} free tests for today!
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Come back tomorrow for more free tests.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="flex gap-3">
             <Button
               variant="gradient"
               size="lg"
               onClick={handleTest}
-              disabled={!hook.trim() || isAnalyzing || limitReached}
+              disabled={!hook.trim() || isAnalyzing}
               className="flex-1"
             >
-            {isAnalyzing ? (
-              <>
-                <Sparkles className="animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <Zap />
-                Test Hook ({remainingTests} left today)
-              </>
+              {isAnalyzing ? (
+                <>
+                  <Sparkles className="animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Zap />
+                  Test Hook
+                </>
               )}
             </Button>
             <Button
