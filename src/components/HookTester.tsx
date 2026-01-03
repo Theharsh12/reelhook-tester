@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
@@ -46,6 +46,37 @@ export function HookTester() {
       description: "Hook suggestion copied successfully",
     });
     setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleShare = async () => {
+    if (!result) return;
+    
+    const shareText = `🎯 Hook Score: ${result.score}/100 - ${result.strength}\n\n"${hook}"\n\nTest your reel hooks at:`;
+    const shareUrl = window.location.href;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "My Hook Analysis",
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          copyShareLink(shareText, shareUrl);
+        }
+      }
+    } else {
+      copyShareLink(shareText, shareUrl);
+    }
+  };
+
+  const copyShareLink = async (text: string, url: string) => {
+    await navigator.clipboard.writeText(`${text}\n${url}`);
+    toast({
+      title: "Copied to clipboard",
+      description: "Share text copied - paste it anywhere!",
+    });
   };
 
   const handleTest = async () => {
@@ -247,9 +278,18 @@ export function HookTester() {
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg mb-4">
               <span className="text-3xl font-bold text-primary-foreground">{result.score}</span>
             </div>
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStrengthStyle(result.strength).bg} ${getStrengthStyle(result.strength).text}`}>
-              <TrendingUp className="w-4 h-4" />
-              <span className="font-semibold">{result.strength}</span>
+            <div className="flex items-center justify-center gap-3">
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStrengthStyle(result.strength).bg} ${getStrengthStyle(result.strength).text}`}>
+                <TrendingUp className="w-4 h-4" />
+                <span className="font-semibold">{result.strength}</span>
+              </div>
+              <button
+                onClick={handleShare}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              >
+                <Share2 className="w-4 h-4" />
+                <span className="font-medium text-sm">Share</span>
+              </button>
             </div>
           </div>
 
