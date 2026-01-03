@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Lock } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
-import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
 
 const DAILY_FREE_LIMIT = 3;
 const STORAGE_KEY = "hook_tester_usage";
@@ -73,17 +71,10 @@ export function HookTester() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const { toast } = useToast();
-  const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
-  const { user } = useAuth();
-
   const [remainingTests, setRemainingTests] = useState(getRemainingTests);
   const [limitReached, setLimitReached] = useState(false);
-
-  useEffect(() => {
-    // Update remaining tests on mount and when user changes
-    setRemainingTests(getRemainingTests());
-  }, [user]);
+  const { toast } = useToast();
+  const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
 
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
@@ -98,13 +89,11 @@ export function HookTester() {
   const handleTest = async () => {
     if (!hook.trim()) return;
     
-    // Check daily limit for unauthenticated users
-    if (!user) {
-      const remaining = getRemainingTests();
-      if (remaining <= 0) {
-        setLimitReached(true);
-        return;
-      }
+    // Check daily limit
+    const remaining = getRemainingTests();
+    if (remaining <= 0) {
+      setLimitReached(true);
+      return;
     }
     
     setIsAnalyzing(true);
@@ -127,11 +116,9 @@ export function HookTester() {
       const hookResult = data as HookResult;
       setResult(hookResult);
       
-      // Track usage for unauthenticated users
-      if (!user) {
-        incrementUsage();
-        setRemainingTests(getRemainingTests());
-      }
+      // Track usage
+      incrementUsage();
+      setRemainingTests(getRemainingTests());
       
       await saveToHistory(hook.trim(), hookResult);
     } catch (error) {
@@ -266,22 +253,17 @@ export function HookTester() {
           </div>
 
           {/* Limit Reached Message */}
-          {limitReached && !user && (
+          {limitReached && (
             <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 animate-fade-in">
               <div className="flex items-start gap-3">
-                <Lock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                <div className="space-y-2">
+                <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                <div className="space-y-1">
                   <p className="text-sm font-medium text-foreground">
                     You've used all {DAILY_FREE_LIMIT} free tests for today!
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Sign in for unlimited hook testing and to save your history across devices.
+                    Come back tomorrow for more free tests.
                   </p>
-                  <Link to="/auth">
-                    <Button variant="gradient" size="sm" className="mt-2">
-                      Sign in for unlimited access
-                    </Button>
-                  </Link>
                 </div>
               </div>
             </div>
@@ -292,7 +274,7 @@ export function HookTester() {
               variant="gradient"
               size="lg"
               onClick={handleTest}
-              disabled={!hook.trim() || isAnalyzing || (limitReached && !user)}
+              disabled={!hook.trim() || isAnalyzing || limitReached}
               className="flex-1"
             >
             {isAnalyzing ? (
@@ -303,7 +285,7 @@ export function HookTester() {
             ) : (
               <>
                 <Zap />
-                Test Hook {!user && `(${remainingTests} left)`}
+                Test Hook ({remainingTests} left today)
               </>
               )}
             </Button>
