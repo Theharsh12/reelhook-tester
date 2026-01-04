@@ -56,6 +56,11 @@ export default {
           strong: "hsl(var(--strength-strong))",
           viral: "hsl(var(--strength-viral))",
         },
+        score: {
+          low: "hsl(var(--score-low))",
+          mid: "hsl(var(--score-mid))",
+          high: "hsl(var(--score-high))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,6 +70,7 @@ export default {
       boxShadow: {
         card: "var(--shadow-card)",
         hover: "var(--shadow-hover)",
+        soft: "var(--shadow-soft)",
         "glow-primary": "var(--glow-primary)",
         "glow-accent": "var(--glow-accent)",
       },
