@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Zap, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2, RefreshCw } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
@@ -21,32 +21,12 @@ const exampleHooks = [
   { label: "Weak Example", hook: "Here are some tips for you" },
 ];
 
-const getStrengthEmoji = (strength: string) => {
-  if (strength.includes("Scroll-Past")) return "😬";
-  if (strength.includes("Pattern Break")) return "⚠️";
-  if (strength.includes("Scroll-Stopping")) return "🔥";
-  if (strength.includes("Viral")) return "🚀";
-  return "";
-};
-
-const getScoreColor = (score: number) => {
-  if (score <= 40) return "text-score-low";
-  if (score <= 70) return "text-score-mid";
-  return "text-score-high";
-};
-
-const getScoreRingColor = (score: number) => {
-  if (score <= 40) return "stroke-score-low";
-  if (score <= 70) return "stroke-score-mid";
-  return "stroke-score-high";
-};
-
 const getStrengthStyle = (strength: string) => {
-  if (strength.includes("Scroll-Past")) return { text: "text-score-low", bg: "bg-score-low/10", border: "border-score-low/20" };
-  if (strength.includes("Pattern Break")) return { text: "text-score-mid", bg: "bg-score-mid/10", border: "border-score-mid/20" };
-  if (strength.includes("Scroll-Stopping")) return { text: "text-score-high", bg: "bg-score-high/10", border: "border-score-high/20" };
-  if (strength.includes("Viral")) return { text: "text-primary", bg: "bg-primary/10", border: "border-primary/20" };
-  return { text: "text-muted-foreground", bg: "bg-muted", border: "border-border" };
+  if (strength.includes("Scroll-Past")) return { text: "text-strength-weak", bg: "bg-strength-weak/10" };
+  if (strength.includes("Pattern Break")) return { text: "text-strength-average", bg: "bg-strength-average/10" };
+  if (strength.includes("Scroll-Stopping")) return { text: "text-strength-strong", bg: "bg-strength-strong/10" };
+  if (strength.includes("Viral")) return { text: "text-strength-viral", bg: "bg-strength-viral/10" };
+  return { text: "text-muted-foreground", bg: "bg-muted/10" };
 };
 
 export function HookTester() {
@@ -62,8 +42,8 @@ export function HookTester() {
     await navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     toast({
-      title: "Copied!",
-      description: "Hook copied to clipboard",
+      title: "Copied to clipboard",
+      description: "Hook suggestion copied successfully",
     });
     setTimeout(() => setCopiedIndex(null), 2000);
   };
@@ -94,7 +74,7 @@ export function HookTester() {
   const copyShareLink = async (text: string, url: string) => {
     await navigator.clipboard.writeText(`${text}\n${url}`);
     toast({
-      title: "Copied!",
+      title: "Copied to clipboard",
       description: "Share text copied - paste it anywhere!",
     });
   };
@@ -153,17 +133,13 @@ export function HookTester() {
     return date.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
-  // Calculate stroke dasharray for circular progress
-  const circumference = 2 * Math.PI * 54;
-  const strokeDashoffset = result ? circumference - (result.score / 100) * circumference : circumference;
-
   return (
     <div className="w-full max-w-xl mx-auto">
       {/* History Panel */}
       {showHistory && (
         <div className="mb-6 bg-card rounded-2xl shadow-card border border-border p-6 animate-fade-in">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-card-foreground">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <History className="w-4 h-4 text-primary" />
               Hook History
             </h3>
@@ -195,14 +171,14 @@ export function HookTester() {
               {history.map((item) => (
                 <div
                   key={item.id}
-                  className="group flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                  className="group flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer"
                   onClick={() => loadFromHistory(item)}
                 >
-                  <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${getScoreColor(item.result.score)} bg-card border border-border`}>
+                  <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${getStrengthStyle(item.result.strength).bg} ${getStrengthStyle(item.result.strength).text}`}>
                     {item.result.score}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-card-foreground truncate">{item.hook}</p>
+                    <p className="text-sm text-foreground truncate">{item.hook}</p>
                     <p className="text-xs text-muted-foreground">{formatDate(item.timestamp)}</p>
                   </div>
                   <button
@@ -224,18 +200,18 @@ export function HookTester() {
       {/* Input Card */}
       <div className="bg-card rounded-2xl shadow-card border border-border p-8">
         <div className="space-y-6">
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-card-foreground">
-              Enter your reel hook
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Paste your reel hook
             </label>
             <Textarea
               value={hook}
               onChange={(e) => setHook(e.target.value.slice(0, maxChars))}
               placeholder="e.g., Stop scrolling if you want to 10x your productivity..."
-              className="min-h-[140px] resize-none bg-muted/30 border border-border focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 focus-visible:border-primary/40 text-base text-card-foreground placeholder:text-muted-foreground/50 rounded-xl transition-all"
+              className="min-h-[120px] resize-none bg-secondary/50 border-0 focus-visible:ring-primary/20 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
             />
             <div className="flex justify-end">
-              <span className={`text-xs font-medium tabular-nums ${charCount >= maxChars ? "text-destructive" : "text-muted-foreground"}`}>
+              <span className={`text-xs font-medium ${charCount >= maxChars ? "text-destructive" : "text-muted-foreground"}`}>
                 {charCount}/{maxChars}
               </span>
             </div>
@@ -249,7 +225,7 @@ export function HookTester() {
                 <button
                   key={example.label}
                   onClick={() => handleExampleClick(example.hook)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-full bg-muted/60 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all border border-transparent hover:border-primary/20"
+                  className="px-3 py-1.5 text-xs font-medium rounded-full bg-secondary/70 text-secondary-foreground hover:bg-primary/20 hover:text-primary transition-colors border border-border/50"
                 >
                   {example.label}
                 </button>
@@ -263,17 +239,17 @@ export function HookTester() {
               size="lg"
               onClick={handleTest}
               disabled={!hook.trim() || isAnalyzing}
-              className="flex-1 h-12 text-base font-semibold"
+              className="flex-1"
             >
               {isAnalyzing ? (
                 <>
-                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  <Sparkles className="animate-spin" />
                   Analyzing...
                 </>
               ) : (
                 <>
-                  <Zap className="w-5 h-5" />
-                  Test My Hook
+                  <Zap />
+                  Test Hook
                 </>
               )}
             </Button>
@@ -281,11 +257,11 @@ export function HookTester() {
               variant="outline"
               size="lg"
               onClick={() => setShowHistory(!showHistory)}
-              className="shrink-0 h-12 w-12 relative bg-card hover:bg-muted"
+              className="shrink-0 relative"
             >
-              <History className="w-5 h-5 text-card-foreground" />
+              <History className="w-5 h-5" />
               {history.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
                   {history.length}
                 </span>
               )}
@@ -299,46 +275,17 @@ export function HookTester() {
         <div className="mt-6 bg-card rounded-2xl shadow-card border border-border p-8 animate-slide-up">
           {/* Score Section */}
           <div className="text-center mb-8">
-            {/* Circular Progress Score */}
-            <div className="relative inline-flex items-center justify-center w-32 h-32 mb-5">
-              <svg className="w-32 h-32 transform -rotate-90">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="54"
-                  fill="none"
-                  strokeWidth="8"
-                  className="stroke-muted"
-                />
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="54"
-                  fill="none"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                  className={`${getScoreRingColor(result.score)} transition-all duration-1000 ease-out`}
-                  style={{
-                    strokeDasharray: circumference,
-                    strokeDashoffset: strokeDashoffset,
-                  }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-4xl font-bold ${getScoreColor(result.score)}`}>{result.score}</span>
-                <span className="text-xs text-muted-foreground font-medium">out of 100</span>
-              </div>
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg mb-4">
+              <span className="text-3xl font-bold text-primary-foreground">{result.score}</span>
             </div>
-            
-            {/* Strength Badge */}
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStrengthStyle(result.strength).bg} ${getStrengthStyle(result.strength).text} border ${getStrengthStyle(result.strength).border}`}>
-                <span className="text-lg">{getStrengthEmoji(result.strength)}</span>
-                <span className="font-semibold text-sm">{result.strength.replace(/[^\w\s-]/g, '').trim()}</span>
+            <div className="flex items-center justify-center gap-3">
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStrengthStyle(result.strength).bg} ${getStrengthStyle(result.strength).text}`}>
+                <TrendingUp className="w-4 h-4" />
+                <span className="font-semibold">{result.strength}</span>
               </div>
               <button
                 onClick={handleShare}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/60 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all border border-transparent hover:border-primary/20"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 <span className="font-medium text-sm">Share</span>
@@ -349,7 +296,7 @@ export function HookTester() {
           {/* Reasons Section */}
           <div className="space-y-6">
             <div>
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-card-foreground mb-3">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
                 <AlertCircle className="w-4 h-4 text-primary" />
                 Analysis
               </h3>
@@ -368,26 +315,26 @@ export function HookTester() {
             </div>
 
             {/* Suggestions Section */}
-            <div className="pt-5 border-t border-border">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-card-foreground mb-3">
-                <Lightbulb className="w-4 h-4 text-score-high" />
-                Rewrite for Higher Score
+            <div className="pt-4 border-t border-border">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                <Lightbulb className="w-4 h-4 text-accent" />
+                Improved Hooks
               </h3>
               <div className="space-y-3">
                 {result.suggestions.map((suggestion, index) => (
                   <div 
                     key={index}
-                    className="group flex items-start gap-3 p-4 rounded-xl bg-muted/40 border border-border/50 animate-fade-in hover:border-primary/20 transition-all"
+                    className="group flex items-start gap-3 p-4 rounded-xl bg-secondary/50 animate-fade-in"
                     style={{ animationDelay: `${(index + 3) * 100}ms` }}
                   >
-                    <p className="flex-1 text-sm text-card-foreground leading-relaxed">{suggestion}</p>
+                    <p className="flex-1 text-sm text-secondary-foreground">{suggestion}</p>
                     <button
                       onClick={() => handleCopy(suggestion, index)}
-                      className="shrink-0 p-2 rounded-lg bg-card hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all border border-border hover:border-primary/20"
+                      className="shrink-0 p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                       aria-label="Copy suggestion"
                     >
                       {copiedIndex === index ? (
-                        <Check className="w-4 h-4 text-score-high" />
+                        <Check className="w-4 h-4 text-strength-strong" />
                       ) : (
                         <Copy className="w-4 h-4" />
                       )}
