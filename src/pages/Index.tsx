@@ -13,7 +13,7 @@ const Index = () => {
         <header className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border mb-6">
             <Instagram className="w-4 h-4 text-accent" />
-            <span className="text-sm font-medium text-secondary-foreground">Reel Creator Tool</span>
+            <span className="text-sm font-medium text-secondary-foreground">Reel Hook Analyzer</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Test Your <span className="gradient-text">Reel Hook</span>
