@@ -233,39 +233,44 @@ export function HookTester() {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button
-              variant="gradient"
-              size="lg"
-              onClick={handleTest}
-              disabled={!hook.trim() || isAnalyzing}
-              className="flex-1"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Sparkles className="animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Zap />
-                  Test Hook
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setShowHistory(!showHistory)}
-              className="shrink-0 relative"
-            >
-              <History className="w-5 h-5" />
-              {history.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                  {history.length}
-                </span>
-              )}
-            </Button>
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <Button
+                variant="gradient"
+                size="lg"
+                onClick={handleTest}
+                disabled={!hook.trim() || isAnalyzing}
+                className="flex-1"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Sparkles className="animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Zap />
+                    Analyze My Hook
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowHistory(!showHistory)}
+                className="shrink-0 relative"
+              >
+                <History className="w-5 h-5" />
+                {history.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                    {history.length}
+                  </span>
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              No login • Free • Instant result
+            </p>
           </div>
         </div>
       </div>
