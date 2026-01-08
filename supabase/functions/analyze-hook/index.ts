@@ -8,25 +8,29 @@ const MAX_REQUESTS_PER_WINDOW = 10; // 10 requests per minute per IP
 // In-memory rate limit store (resets on function cold start)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
-// Allowed origins for CORS (add your production domain here)
+// Allowed origins for CORS
 const allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:8081',
   'http://localhost:5173',
   'https://lovable.dev',
+  'https://reelhook-tester.netlify.app',
 ];
 
 function getCorsHeaders(origin: string | null): Record<string, string> {
-  // Check if origin is from lovable.dev or its subdomains, or is in allowed list
+  // Check if origin is from lovable.dev, lovable.app, or is in allowed list
   const isAllowed = origin && (
     allowedOrigins.includes(origin) ||
     origin.endsWith('.lovable.dev') ||
-    origin.endsWith('.lovableproject.com')
+    origin.endsWith('.lovableproject.com') ||
+    origin.endsWith('.lovable.app') ||
+    origin.endsWith('.netlify.app')
   );
   
   return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Origin': isAllowed ? origin : '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 }
 
