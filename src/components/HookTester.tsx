@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
+import confetti from "canvas-confetti";
 
 interface HookResult {
   score: number;
@@ -37,6 +38,23 @@ export function HookTester() {
   const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
   const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
+
+  const triggerConfetti = useCallback(() => {
+    // Fire confetti from the left
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { x: 0.1, y: 0.6 },
+      colors: ['#22c55e', '#4ade80', '#86efac', '#bbf7d0', '#dcfce7']
+    });
+    // Fire confetti from the right
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { x: 0.9, y: 0.6 },
+      colors: ['#22c55e', '#4ade80', '#86efac', '#bbf7d0', '#dcfce7']
+    });
+  }, []);
 
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
@@ -100,6 +118,11 @@ export function HookTester() {
 
       const hookResult = data as HookResult;
       setResult(hookResult);
+      
+      // Trigger confetti for viral potential hooks (score > 80)
+      if (hookResult.score > 80) {
+        triggerConfetti();
+      }
       
       await saveToHistory(hook.trim(), hookResult);
     } catch (error) {
