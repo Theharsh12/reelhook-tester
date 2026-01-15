@@ -117,15 +117,10 @@ const Index = () => {
         </section>
 
         {/* Footer */}
-        <footer className="mt-20 pt-8 border-t border-border/50">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Instagram className="w-4 h-4 text-accent" />
-              <span className="font-medium text-foreground">Reel Hook Analyzer</span>
-            </div>
-            <p>Craft hooks that make viewers stop scrolling</p>
-            <p>© {new Date().getFullYear()} All rights reserved</p>
-          </div>
+        <footer className="mt-24 pb-8 text-center">
+          <p className="text-sm text-[#9CA3AF]">
+            © 2026 Hooktester · Built for Instagram creators
+          </p>
         </footer>
       </div>
     </div>
