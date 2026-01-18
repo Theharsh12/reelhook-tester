@@ -30,14 +30,17 @@ const Index = () => {
         {/* Header */}
         <header className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border mb-6">
-            <Instagram className="w-4 h-4 text-accent" />
+            <Instagram className="w-4 h-4 text-accent" aria-hidden="true" />
             <span className="text-sm font-medium text-secondary-foreground">Reel Hook Analyzer</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Test Your <span className="gradient-text">Instagram</span> Reel <span className="gradient-text">Hook</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-md mx-auto">
-            See how scroll-stopping your first line really is
+          <h2 className="text-lg text-muted-foreground max-w-lg mx-auto mb-6">
+            Analyze if your reel hook is scroll-stopping or getting ignored
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            Hooktester is a free Instagram reel hook tester that helps creators analyze their reel hooks in seconds. This reel hook analyzer checks clarity, curiosity, and relevance to improve Instagram reel engagement.
           </p>
         </header>
 
@@ -50,6 +53,9 @@ const Index = () => {
         <div className="text-center mt-10 animate-fade-in" style={{ animationDelay: "300ms" }}>
           <p className="text-sm text-muted-foreground">
             Built for Instagram creators, marketers, and coaches
+          </p>
+          <p className="text-xs text-muted-foreground/70 mt-3 max-w-md mx-auto">
+            Use this hook analysis tool to understand why some Instagram reel hooks stop the scroll while others get ignored.
           </p>
         </div>
 
@@ -118,8 +124,8 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="mt-24 pb-8 text-center">
-          <p className="text-sm text-[#9CA3AF]">
-            © 2026 Hooktester · Built for Instagram creators
+          <p className="text-sm text-muted-foreground/60">
+            © 2026 Hooktester · Instagram Reel Hook Analyzer for Creators
           </p>
         </footer>
       </div>
