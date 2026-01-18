@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const DEMO_MODE = true; 
+
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
@@ -179,6 +181,34 @@ serve(async (req) => {
     }
 
     console.log('Analyzing hook:', trimmedHook.substring(0, 50) + '...');
+    
+if (DEMO_MODE) {
+  const fakeScore = Math.floor(55 + Math.random() * 30);
+
+  const demoResponse = {
+    score: fakeScore,
+    strength:
+      fakeScore < 60
+        ? "Needs Pattern Break ⚠️"
+        : fakeScore < 80
+        ? "Scroll-Stopping 🔥"
+        : "Viral Potential 🚀",
+    reasons: [
+      "Hook is clear but lacks a strong curiosity gap",
+      "First line doesn't create enough urgency",
+      "Could be more specific to the viewer’s pain"
+    ],
+    suggestions: [
+      "This one line changed my reel reach completely",
+      "If your reels get no views, read this first"
+    ]
+  };
+
+  return new Response(JSON.stringify(demoResponse), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
