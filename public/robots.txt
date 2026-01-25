@@ -1,14 +1,12 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Hooktester - Instagram Reel Hook Analyzer
+# https://testyourreelhook.lovable.app
 
 User-agent: *
 Allow: /
+
+# Sitemap location
+Sitemap: https://testyourreelhook.lovable.app/sitemap.xml
+
+# Disallow non-essential paths
+Disallow: /api/
+Disallow: /*.json$
