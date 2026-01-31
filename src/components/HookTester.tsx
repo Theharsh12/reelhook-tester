@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2 } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2, AlertTriangle, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
@@ -9,9 +9,20 @@ import confetti from "canvas-confetti";
 
 interface HookResult {
   score: number;
-  strength: string;
-  reasons: string[];
-  suggestions: string[];
+  verdict: string;
+  brutalTruth: string[];
+  whatsMissing: string;
+  beforeAfter: {
+    original: string;
+    improved: string;
+  };
+  hookVariations: {
+    pain: string;
+    curiosity: string;
+    relatable: string;
+  };
+  whenToUse: string;
+  commonMistake: string;
 }
 
 const exampleHooks = [
@@ -22,11 +33,11 @@ const exampleHooks = [
   { label: "Weak Example", hook: "Here are some tips for you" },
 ];
 
-const getStrengthStyle = (strength: string) => {
-  if (strength.includes("Scroll-Past")) return { text: "text-strength-weak", bg: "bg-strength-weak/10" };
-  if (strength.includes("Pattern Break")) return { text: "text-strength-average", bg: "bg-strength-average/10" };
-  if (strength.includes("Scroll-Stopping")) return { text: "text-strength-strong", bg: "bg-strength-strong/10" };
-  if (strength.includes("Viral")) return { text: "text-strength-viral", bg: "bg-strength-viral/10" };
+const getVerdictStyle = (verdict: string) => {
+  if (verdict.includes("Likely to be Scrolled")) return { text: "text-strength-weak", bg: "bg-strength-weak/10" };
+  if (verdict.includes("Weak Stopper")) return { text: "text-strength-average", bg: "bg-strength-average/10" };
+  if (verdict.includes("Scroll-Stopping")) return { text: "text-strength-strong", bg: "bg-strength-strong/10" };
+  if (verdict.includes("Viral-Ready")) return { text: "text-strength-viral", bg: "bg-strength-viral/10" };
   return { text: "text-muted-foreground", bg: "bg-muted/10" };
 };
 
@@ -34,20 +45,18 @@ export function HookTester() {
   const [hook, setHook] = useState("");
   const [result, setResult] = useState<HookResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
   const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
 
   const triggerConfetti = useCallback(() => {
-    // Fire confetti from the left
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { x: 0.1, y: 0.6 },
       colors: ['#22c55e', '#4ade80', '#86efac', '#bbf7d0', '#dcfce7']
     });
-    // Fire confetti from the right
     confetti({
       particleCount: 100,
       spread: 70,
@@ -56,12 +65,12 @@ export function HookTester() {
     });
   }, []);
 
-  const handleCopy = async (text: string, index: number) => {
+  const handleCopy = async (text: string, key: string) => {
     await navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
+    setCopiedIndex(key);
     toast({
       title: "Copied to clipboard",
-      description: "Hook suggestion copied successfully",
+      description: "Hook copied successfully",
     });
     setTimeout(() => setCopiedIndex(null), 2000);
   };
@@ -69,7 +78,7 @@ export function HookTester() {
   const handleShare = async () => {
     if (!result) return;
     
-    const shareText = `🎯 Hook Score: ${result.score}/100 - ${result.strength}\n\n"${hook}"\n\nTest your reel hooks at:`;
+    const shareText = `🎯 Hook Score: ${result.score}/100 - ${result.verdict}\n\n"${hook}"\n\nTest your reel hooks at:`;
     const shareUrl = window.location.href;
     
     if (navigator.share) {
@@ -119,12 +128,17 @@ export function HookTester() {
       const hookResult = data as HookResult;
       setResult(hookResult);
       
-      // Trigger confetti for viral potential hooks (score > 80)
       if (hookResult.score > 80) {
         triggerConfetti();
       }
       
-      await saveToHistory(hook.trim(), hookResult);
+      // Save to history with compatible format
+      await saveToHistory(hook.trim(), {
+        score: hookResult.score,
+        strength: hookResult.verdict,
+        reasons: hookResult.brutalTruth,
+        suggestions: [hookResult.hookVariations.pain, hookResult.hookVariations.curiosity, hookResult.hookVariations.relatable]
+      });
     } catch (error) {
       console.error('Analysis error:', error);
       toast({
@@ -145,15 +159,40 @@ export function HookTester() {
     setResult(null);
   };
 
-  const loadFromHistory = (item: { hook: string; result: HookResult }) => {
+  const loadFromHistory = (item: { hook: string; result: { score: number; strength: string; reasons: string[]; suggestions: string[] } }) => {
     setHook(item.hook);
-    setResult(item.result);
+    // Convert old format to new format for display
+    setResult({
+      score: item.result.score,
+      verdict: item.result.strength,
+      brutalTruth: item.result.reasons,
+      whatsMissing: "Review this hook again for updated analysis.",
+      beforeAfter: {
+        original: item.hook,
+        improved: item.result.suggestions[0] || ""
+      },
+      hookVariations: {
+        pain: item.result.suggestions[0] || "",
+        curiosity: item.result.suggestions[1] || "",
+        relatable: item.result.suggestions[2] || ""
+      },
+      whenToUse: "Re-analyze for updated insights.",
+      commonMistake: "⚠️ Re-analyze this hook for current insights."
+    });
     setShowHistory(false);
   };
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  };
+
+  const getHistoryVerdictStyle = (strength: string) => {
+    if (strength.includes("Scrolled") || strength.includes("Scroll-Past")) return { text: "text-strength-weak", bg: "bg-strength-weak/10" };
+    if (strength.includes("Weak") || strength.includes("Pattern Break")) return { text: "text-strength-average", bg: "bg-strength-average/10" };
+    if (strength.includes("Stopping") || strength.includes("Scroll-Stopping")) return { text: "text-strength-strong", bg: "bg-strength-strong/10" };
+    if (strength.includes("Viral")) return { text: "text-strength-viral", bg: "bg-strength-viral/10" };
+    return { text: "text-muted-foreground", bg: "bg-muted/10" };
   };
 
   return (
@@ -197,7 +236,7 @@ export function HookTester() {
                   className="group flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors cursor-pointer"
                   onClick={() => loadFromHistory(item)}
                 >
-                  <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${getStrengthStyle(item.result.strength).bg} ${getStrengthStyle(item.result.strength).text}`}>
+                  <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${getHistoryVerdictStyle(item.result.strength).bg} ${getHistoryVerdictStyle(item.result.strength).text}`}>
                     {item.result.score}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -301,15 +340,15 @@ export function HookTester() {
       {/* Results Card */}
       {result && !isAnalyzing && (
         <div className="mt-6 bg-card rounded-2xl shadow-card border border-border p-8 animate-slide-up">
-          {/* Score Section */}
+          {/* Verdict Section */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg mb-4">
               <span className="text-3xl font-bold text-primary-foreground">{result.score}</span>
             </div>
-            <div className="flex items-center justify-center gap-3">
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStrengthStyle(result.strength).bg} ${getStrengthStyle(result.strength).text}`}>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getVerdictStyle(result.verdict).bg} ${getVerdictStyle(result.verdict).text}`}>
                 <TrendingUp className="w-4 h-4" />
-                <span className="font-semibold">{result.strength}</span>
+                <span className="font-semibold">{result.verdict}</span>
               </div>
               <button
                 onClick={handleShare}
@@ -321,15 +360,15 @@ export function HookTester() {
             </div>
           </div>
 
-          {/* Reasons Section */}
           <div className="space-y-6">
+            {/* Brutal Truth Section */}
             <div>
               <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
                 <AlertCircle className="w-4 h-4 text-primary" />
-                Analysis
+                Brutal Truth
               </h3>
               <ul className="space-y-2">
-                {result.reasons.map((reason, index) => (
+                {result.brutalTruth.map((reason, index) => (
                   <li 
                     key={index} 
                     className="flex items-start gap-3 text-sm text-muted-foreground animate-fade-in"
@@ -342,26 +381,71 @@ export function HookTester() {
               </ul>
             </div>
 
-            {/* Suggestions Section */}
+            {/* What's Missing */}
+            <div className="p-4 rounded-xl bg-strength-average/10 border border-strength-average/20">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-strength-average mb-2">
+                <AlertTriangle className="w-4 h-4" />
+                What's Missing
+              </h3>
+              <p className="text-sm text-muted-foreground">{result.whatsMissing}</p>
+            </div>
+
+            {/* Before → After */}
+            <div className="pt-4 border-t border-border">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                <ArrowRight className="w-4 h-4 text-accent" />
+                Before → After Rewrite
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/10">
+                  <span className="text-destructive font-bold">❌</span>
+                  <p className="text-sm text-muted-foreground">{result.beforeAfter.original}</p>
+                </div>
+                <div className="group flex items-start gap-3 p-4 rounded-xl bg-strength-strong/10">
+                  <span className="text-strength-strong font-bold">✅</span>
+                  <p className="flex-1 text-sm text-foreground font-medium">{result.beforeAfter.improved}</p>
+                  <button
+                    onClick={() => handleCopy(result.beforeAfter.improved, 'improved')}
+                    className="shrink-0 p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Copy improved hook"
+                  >
+                    {copiedIndex === 'improved' ? (
+                      <Check className="w-4 h-4 text-strength-strong" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Hook Variations */}
             <div className="pt-4 border-t border-border">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
                 <Lightbulb className="w-4 h-4 text-accent" />
-                Improved Hooks
+                3 Ready-to-Use Hook Variations
               </h3>
               <div className="space-y-3">
-                {result.suggestions.map((suggestion, index) => (
+                {[
+                  { key: 'pain', label: 'Pain Hook', value: result.hookVariations.pain },
+                  { key: 'curiosity', label: 'Curiosity Hook', value: result.hookVariations.curiosity },
+                  { key: 'relatable', label: 'Relatable Hook', value: result.hookVariations.relatable },
+                ].map((variation, index) => (
                   <div 
-                    key={index}
+                    key={variation.key}
                     className="group flex items-start gap-3 p-4 rounded-xl bg-secondary/50 animate-fade-in"
                     style={{ animationDelay: `${(index + 3) * 100}ms` }}
                   >
-                    <p className="flex-1 text-sm text-secondary-foreground">{suggestion}</p>
+                    <span className="shrink-0 px-2 py-1 text-xs font-medium rounded bg-primary/20 text-primary">
+                      {variation.label}
+                    </span>
+                    <p className="flex-1 text-sm text-secondary-foreground">{variation.value}</p>
                     <button
-                      onClick={() => handleCopy(suggestion, index)}
+                      onClick={() => handleCopy(variation.value, variation.key)}
                       className="shrink-0 p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label="Copy suggestion"
+                      aria-label={`Copy ${variation.label}`}
                     >
-                      {copiedIndex === index ? (
+                      {copiedIndex === variation.key ? (
                         <Check className="w-4 h-4 text-strength-strong" />
                       ) : (
                         <Copy className="w-4 h-4" />
@@ -369,6 +453,17 @@ export function HookTester() {
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* When to Use & Warning */}
+            <div className="pt-4 border-t border-border space-y-4">
+              <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                <h3 className="text-sm font-semibold text-foreground mb-1">When to Use This Hook</h3>
+                <p className="text-sm text-muted-foreground">{result.whenToUse}</p>
+              </div>
+              <div className="p-4 rounded-xl bg-strength-average/10 border border-strength-average/20">
+                <p className="text-sm text-strength-average font-medium">{result.commonMistake}</p>
               </div>
             </div>
           </div>
