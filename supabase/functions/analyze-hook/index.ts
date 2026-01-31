@@ -82,37 +82,51 @@ function checkRateLimit(clientIP: string): { allowed: boolean; retryAfter?: numb
   return { allowed: true };
 }
 
-const systemPrompt = `You are an expert Instagram growth strategist.
+const systemPrompt = `You are a brutally honest Instagram Reel Hook Coach.
 
-Analyze the reel hook strictly.
+Your job is NOT to be polite. Your job is to decide whether a viewer will STOP or SCROLL within the first 2–3 seconds.
 
-Score from 0–100 based on:
-1. Clarity in first 3 seconds
+Think like a short-form content creator, a viewer with low attention span, someone who has seen 1,000 reels today.
+
+STRICT RULES:
+- No AI, marketing, or technical jargon
+- Talk like a real creator, not a tool
+- Be blunt but helpful
+- Assume the hook is spoken in the first line of a reel
+- If it's weak, say it clearly
+
+ANALYZE BASED ON:
+1. First-3-second clarity
 2. Curiosity gap
-3. Emotional or problem trigger
-4. Scroll-stopping potential
-
-Rules:
-- Be honest and strict
-- No emojis except in strength label
-- Use simple creator language
-- Avoid AI or marketing jargon
+3. Relatability or pain
+4. Scroll-stopping power
 
 You MUST respond with valid JSON in this exact format:
 {
   "score": <number 0-100>,
-  "strength": "<Scroll-Past Risk 😬 | Needs Pattern Break ⚠️ | Scroll-Stopping 🔥 | Viral Potential 🚀>",
-  "reasons": ["<clear reason 1>", "<clear reason 2>", "<clear reason 3>"],
-  "suggestions": ["<short and punchy hook>", "<curiosity-driven hook>"]
+  "verdict": "<🚫 Likely to be Scrolled | ⚠️ Weak Stopper | 🔥 Scroll-Stopping | 🚀 Viral-Ready>",
+  "brutalTruth": ["<reason 1 no emoji>", "<reason 2 no emoji>", "<reason 3 no emoji>"],
+  "whatsMissing": "<one short sentence>",
+  "beforeAfter": {
+    "original": "<the original hook>",
+    "improved": "<scroll-stopping, specific, curiosity-driven rewrite>"
+  },
+  "hookVariations": {
+    "pain": "<under 12 words>",
+    "curiosity": "<under 12 words>",
+    "relatable": "<under 12 words>"
+  },
+  "whenToUse": "<one short line explaining best use case>",
+  "commonMistake": "<one warning starting with ⚠️>"
 }
 
-Strength levels:
-- Scroll-Past Risk 😬: 0-39
-- Needs Pattern Break ⚠️: 40-59
-- Scroll-Stopping 🔥: 60-79
-- Viral Potential 🚀: 80-100
+Score mapping:
+- 🚫 Likely to be Scrolled: 0-39
+- ⚠️ Weak Stopper: 40-59
+- 🔥 Scroll-Stopping: 60-79
+- 🚀 Viral-Ready: 80-100
 
-Keep reasons concise and direct. Make suggestions short, punchy, and specific to the hook.`;
+Be specific to the given hook. Sound like a creator coach, not software.`;
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -122,7 +136,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-// Apply rate limiting per IP for unauthenticated requests
+  // Apply rate limiting per IP for unauthenticated requests
   const clientIP = getClientIP(req);
   const rateLimitResult = checkRateLimit(clientIP);
   
@@ -182,33 +196,42 @@ serve(async (req) => {
 
     console.log('Analyzing hook:', trimmedHook.substring(0, 50) + '...');
     
-if (DEMO_MODE) {
-  const fakeScore = Math.floor(55 + Math.random() * 30);
+    if (DEMO_MODE) {
+      const fakeScore = Math.floor(55 + Math.random() * 30);
 
-  const demoResponse = {
-    score: fakeScore,
-    strength:
-      fakeScore < 60
-        ? "Needs Pattern Break ⚠️"
-        : fakeScore < 80
-        ? "Scroll-Stopping 🔥"
-        : "Viral Potential 🚀",
-    reasons: [
-      "Hook is clear but lacks a strong curiosity gap",
-      "First line doesn't create enough urgency",
-      "Could be more specific to the viewer’s pain"
-    ],
-    suggestions: [
-      "This one line changed my reel reach completely",
-      "If your reels get no views, read this first"
-    ]
-  };
+      const demoResponse = {
+        score: fakeScore,
+        verdict:
+          fakeScore < 40
+            ? "🚫 Likely to be Scrolled"
+            : fakeScore < 60
+            ? "⚠️ Weak Stopper"
+            : fakeScore < 80
+            ? "🔥 Scroll-Stopping"
+            : "🚀 Viral-Ready",
+        brutalTruth: [
+          "Hook is clear but lacks a strong curiosity gap",
+          "First line doesn't create enough urgency",
+          "Could be more specific to the viewer's pain"
+        ],
+        whatsMissing: "A pattern interrupt that makes viewers feel called out.",
+        beforeAfter: {
+          original: trimmedHook,
+          improved: "Stop posting reels until you fix this one thing"
+        },
+        hookVariations: {
+          pain: "This one mistake is killing your reel reach",
+          curiosity: "I found out why my reels never got views",
+          relatable: "POV: You just realized your hooks are boring"
+        },
+        whenToUse: "Best for educational content about content creation or social media growth.",
+        commonMistake: "⚠️ Don't start with 'I' or make it about you—make it about THEM."
+      };
 
-  return new Response(JSON.stringify(demoResponse), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
-
+      return new Response(JSON.stringify(demoResponse), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -269,7 +292,7 @@ if (DEMO_MODE) {
       );
     }
 
-    console.log('Analysis complete:', { score: analysis.score, strength: analysis.strength });
+    console.log('Analysis complete:', { score: analysis.score, verdict: analysis.verdict });
 
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
