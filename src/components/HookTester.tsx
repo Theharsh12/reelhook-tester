@@ -196,7 +196,7 @@ export function HookTester() {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className="w-full max-w-xl mx-auto px-1 sm:px-0">
       {/* History Panel */}
       {showHistory && (
         <div className="mb-6 bg-card rounded-2xl shadow-card border border-border p-6 animate-fade-in">
@@ -260,8 +260,8 @@ export function HookTester() {
       )}
 
       {/* Input Card */}
-      <div className="bg-card rounded-2xl shadow-card border border-border p-8">
-        <div className="space-y-6">
+      <div className="bg-card rounded-2xl shadow-card border border-border p-5 sm:p-8">
+        <div className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               Paste your reel hook
@@ -270,7 +270,7 @@ export function HookTester() {
               value={hook}
               onChange={(e) => setHook(e.target.value.slice(0, maxChars))}
               placeholder="e.g., Stop scrolling if you want to 10x your productivity..."
-              className="min-h-[120px] resize-none bg-secondary/50 border-0 focus-visible:ring-primary/20 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/60"
+              className="min-h-[100px] sm:min-h-[120px] resize-none bg-secondary/50 border-0 focus-visible:ring-primary/20 focus-visible:ring-offset-0 text-sm sm:text-base placeholder:text-muted-foreground/60"
             />
             <div className="flex justify-end">
               <span className={`text-xs font-medium ${charCount >= maxChars ? "text-destructive" : "text-muted-foreground"}`}>
@@ -282,12 +282,12 @@ export function HookTester() {
           {/* Example Hooks */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground">Try an example:</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {exampleHooks.map((example) => (
                 <button
                   key={example.label}
                   onClick={() => handleExampleClick(example.hook)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-full bg-secondary/70 text-secondary-foreground hover:bg-primary/20 hover:text-primary transition-colors border border-border/50"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium rounded-full bg-secondary/70 text-secondary-foreground hover:bg-primary/20 hover:text-primary transition-colors border border-border/50"
                 >
                   {example.label}
                 </button>
@@ -295,24 +295,24 @@ export function HookTester() {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex gap-3">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="flex gap-2 sm:gap-3">
               <Button
                 variant="gradient"
                 size="lg"
                 onClick={handleTest}
                 disabled={!hook.trim() || isAnalyzing}
-                className="flex-1"
+                className="flex-1 text-sm sm:text-base py-2.5 sm:py-3"
               >
                 {isAnalyzing ? (
                   <>
-                    <Sparkles className="animate-spin" />
-                    Analyzing...
+                    <Sparkles className="animate-spin w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="ml-1.5">Analyzing...</span>
                   </>
                 ) : (
                   <>
-                    <Zap />
-                    Analyze My Hook
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="ml-1.5">Analyze My Hook</span>
                   </>
                 )}
               </Button>
@@ -320,17 +320,17 @@ export function HookTester() {
                 variant="outline"
                 size="lg"
                 onClick={() => setShowHistory(!showHistory)}
-                className="shrink-0 relative"
+                className="shrink-0 relative px-3 sm:px-4"
               >
-                <History className="w-5 h-5" />
+                <History className="w-4 h-4 sm:w-5 sm:h-5" />
                 {history.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary text-primary-foreground text-[10px] sm:text-xs flex items-center justify-center">
                     {history.length}
                   </span>
                 )}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground text-center">
               No login • Free • Instant result
             </p>
           </div>
@@ -339,42 +339,42 @@ export function HookTester() {
 
       {/* Results Card */}
       {result && !isAnalyzing && (
-        <div className="mt-6 bg-card rounded-2xl shadow-card border border-border p-8 animate-slide-up">
+        <div className="mt-4 sm:mt-6 bg-card rounded-2xl shadow-card border border-border p-5 sm:p-8 animate-slide-up">
           {/* Verdict Section */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full gradient-bg mb-4">
-              <span className="text-3xl font-bold text-primary-foreground">{result.score}</span>
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full gradient-bg mb-3 sm:mb-4">
+              <span className="text-2xl sm:text-3xl font-bold text-primary-foreground">{result.score}</span>
             </div>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getVerdictStyle(result.verdict).bg} ${getVerdictStyle(result.verdict).text}`}>
-                <TrendingUp className="w-4 h-4" />
-                <span className="font-semibold">{result.verdict}</span>
+            <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+              <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full ${getVerdictStyle(result.verdict).bg} ${getVerdictStyle(result.verdict).text}`}>
+                <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="font-semibold text-sm sm:text-base">{result.verdict}</span>
               </div>
               <button
                 onClick={handleShare}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
               >
-                <Share2 className="w-4 h-4" />
-                <span className="font-medium text-sm">Share</span>
+                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="font-medium text-xs sm:text-sm">Share</span>
               </button>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             {/* Brutal Truth Section */}
             <div>
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-                <AlertCircle className="w-4 h-4 text-primary" />
+              <h3 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
+                <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 Brutal Truth
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-1.5 sm:space-y-2">
                 {result.brutalTruth.map((reason, index) => (
                   <li 
                     key={index} 
-                    className="flex items-start gap-3 text-sm text-muted-foreground animate-fade-in"
+                    className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground animate-fade-in"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-primary mt-1.5 sm:mt-2 shrink-0" />
                     {reason}
                   </li>
                 ))}
@@ -382,37 +382,37 @@ export function HookTester() {
             </div>
 
             {/* What's Missing */}
-            <div className="p-4 rounded-xl bg-strength-average/10 border border-strength-average/20">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-strength-average mb-2">
-                <AlertTriangle className="w-4 h-4" />
+            <div className="p-3 sm:p-4 rounded-xl bg-strength-average/10 border border-strength-average/20">
+              <h3 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-strength-average mb-1.5 sm:mb-2">
+                <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 What's Missing
               </h3>
-              <p className="text-sm text-muted-foreground">{result.whatsMissing}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{result.whatsMissing}</p>
             </div>
 
             {/* Before → After */}
-            <div className="pt-4 border-t border-border">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-                <ArrowRight className="w-4 h-4 text-accent" />
+            <div className="pt-4 sm:pt-4 border-t border-border">
+              <h3 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent" />
                 Before → After Rewrite
               </h3>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/10">
-                  <span className="text-destructive font-bold">❌</span>
-                  <p className="text-sm text-muted-foreground">{result.beforeAfter.original}</p>
+              <div className="space-y-2 sm:space-y-3">
+                <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-destructive/10">
+                  <span className="text-destructive font-bold text-sm sm:text-base">❌</span>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{result.beforeAfter.original}</p>
                 </div>
-                <div className="group flex items-start gap-3 p-4 rounded-xl bg-strength-strong/10">
-                  <span className="text-strength-strong font-bold">✅</span>
-                  <p className="flex-1 text-sm text-foreground font-medium">{result.beforeAfter.improved}</p>
+                <div className="group flex items-start gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-strength-strong/10">
+                  <span className="text-strength-strong font-bold text-sm sm:text-base">✅</span>
+                  <p className="flex-1 text-xs sm:text-sm text-foreground font-medium">{result.beforeAfter.improved}</p>
                   <button
                     onClick={() => handleCopy(result.beforeAfter.improved, 'improved')}
-                    className="shrink-0 p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    className="shrink-0 p-1.5 sm:p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     aria-label="Copy improved hook"
                   >
                     {copiedIndex === 'improved' ? (
-                      <Check className="w-4 h-4 text-strength-strong" />
+                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-strength-strong" />
                     ) : (
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     )}
                   </button>
                 </div>
@@ -420,12 +420,12 @@ export function HookTester() {
             </div>
 
             {/* Hook Variations */}
-            <div className="pt-4 border-t border-border">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-                <Lightbulb className="w-4 h-4 text-accent" />
+            <div className="pt-4 sm:pt-4 border-t border-border">
+              <h3 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
+                <Lightbulb className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent" />
                 3 Ready-to-Use Hook Variations
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {[
                   { key: 'pain', label: 'Pain Hook', value: result.hookVariations.pain },
                   { key: 'curiosity', label: 'Curiosity Hook', value: result.hookVariations.curiosity },
@@ -433,22 +433,22 @@ export function HookTester() {
                 ].map((variation, index) => (
                   <div 
                     key={variation.key}
-                    className="group flex items-start gap-3 p-4 rounded-xl bg-secondary/50 animate-fade-in"
+                    className="group flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-secondary/50 animate-fade-in"
                     style={{ animationDelay: `${(index + 3) * 100}ms` }}
                   >
-                    <span className="shrink-0 px-2 py-1 text-xs font-medium rounded bg-primary/20 text-primary">
+                    <span className="shrink-0 px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium rounded bg-primary/20 text-primary w-fit">
                       {variation.label}
                     </span>
-                    <p className="flex-1 text-sm text-secondary-foreground">{variation.value}</p>
+                    <p className="flex-1 text-xs sm:text-sm text-secondary-foreground">{variation.value}</p>
                     <button
                       onClick={() => handleCopy(variation.value, variation.key)}
-                      className="shrink-0 p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      className="shrink-0 self-end sm:self-auto p-1.5 sm:p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                       aria-label={`Copy ${variation.label}`}
                     >
                       {copiedIndex === variation.key ? (
-                        <Check className="w-4 h-4 text-strength-strong" />
+                        <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-strength-strong" />
                       ) : (
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       )}
                     </button>
                   </div>
@@ -457,13 +457,13 @@ export function HookTester() {
             </div>
 
             {/* When to Use & Warning */}
-            <div className="pt-4 border-t border-border space-y-4">
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                <h3 className="text-sm font-semibold text-foreground mb-1">When to Use This Hook</h3>
-                <p className="text-sm text-muted-foreground">{result.whenToUse}</p>
+            <div className="pt-4 sm:pt-4 border-t border-border space-y-3 sm:space-y-4">
+              <div className="p-3 sm:p-4 rounded-xl bg-primary/5 border border-primary/10">
+                <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-1">When to Use This Hook</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">{result.whenToUse}</p>
               </div>
-              <div className="p-4 rounded-xl bg-strength-average/10 border border-strength-average/20">
-                <p className="text-sm text-strength-average font-medium">{result.commonMistake}</p>
+              <div className="p-3 sm:p-4 rounded-xl bg-strength-average/10 border border-strength-average/20">
+                <p className="text-xs sm:text-sm text-strength-average font-medium">{result.commonMistake}</p>
               </div>
             </div>
           </div>
