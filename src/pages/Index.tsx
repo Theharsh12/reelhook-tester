@@ -1,5 +1,5 @@
 import { HookTester } from "@/components/HookTester";
-import { Instagram, Zap, Target, BarChart3, ChevronDown } from "lucide-react";
+import { Instagram, Zap, Target, BarChart3, ChevronDown, Lightbulb, MessageCircle, Eye, Flame, Clock } from "lucide-react";
 import { useState } from "react";
 
 const faqs = [
@@ -83,6 +83,59 @@ const Index = () => {
               <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">Score & Improve</h3>
               <p className="text-xs sm:text-sm text-muted-foreground">Get specific suggestions to boost engagement</p>
             </div>
+          </div>
+        </section>
+
+        {/* Tips / Blog Section */}
+        <section className="mt-12 sm:mt-20 max-w-3xl mx-auto animate-fade-in px-2" style={{ animationDelay: "450ms" }}>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center mb-2 sm:mb-3">
+            How to Write Scroll-Stopping Instagram Reel Hooks
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground text-center mb-6 sm:mb-8 max-w-xl mx-auto">
+            The first 1–3 seconds of your reel decide whether someone watches or scrolls. Here are proven techniques top creators use to hook viewers instantly.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            {[
+              {
+                icon: Eye,
+                title: "Open With a Pattern Interrupt",
+                body: "Start with something unexpected—a bold claim, a controversial take, or a visual that breaks the norm. \"Nobody talks about this…\" or \"Stop doing this immediately\" forces the brain to pause and pay attention."
+              },
+              {
+                icon: MessageCircle,
+                title: "Use a Curiosity Gap",
+                body: "Tease what's coming without giving it away. Phrases like \"The #1 mistake creators make\" or \"I tried this for 30 days and…\" create an open loop the viewer needs to close by watching."
+              },
+              {
+                icon: Flame,
+                title: "Lead With Emotion or Urgency",
+                body: "Hooks that trigger fear of missing out, excitement, or surprise outperform neutral ones. \"You're losing followers because of this\" hits harder than \"Here's a tip for growth.\""
+              },
+              {
+                icon: Lightbulb,
+                title: "Make a Specific Promise",
+                body: "Vague hooks get ignored. Instead of \"How to grow on Instagram,\" try \"3 hooks that got me 1M views this month.\" Specificity signals value and builds trust instantly."
+              },
+              {
+                icon: Clock,
+                title: "Keep It Under 8 Words",
+                body: "The best hooks are punchy and scannable. Viewers decide in under a second whether to stay—long sentences get lost. Edit ruthlessly: every word must earn its place."
+              },
+            ].map((tip, i) => (
+              <article
+                key={i}
+                className={`p-4 sm:p-5 rounded-2xl bg-card/50 border border-border/50 ${i === 4 ? "sm:col-span-2 sm:max-w-md sm:mx-auto" : ""}`}
+              >
+                <div className="flex items-center gap-2.5 mb-2">
+                  <div className="w-8 h-8 rounded-full gradient-bg flex items-center justify-center shrink-0">
+                    <tip.icon className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">{tip.title}</h3>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{tip.body}</p>
+              </article>
+            ))}
           </div>
         </section>
 
