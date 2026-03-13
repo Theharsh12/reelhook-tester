@@ -52,8 +52,17 @@ export function HookTester() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [usageCount, setUsageCount] = useState(0);
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
   const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
+
+  // Load usage count from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(USAGE_KEY);
+    if (stored) setUsageCount(parseInt(stored, 10) || 0);
+  }, []);
 
   const triggerConfetti = useCallback(() => {
     confetti({
