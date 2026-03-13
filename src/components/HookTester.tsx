@@ -387,7 +387,7 @@ export function HookTester() {
               </Button>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground text-center">
-              No login • Free • Instant result
+              {user ? "Unlimited analyses • Signed in" : `${Math.max(0, FREE_LIMIT - usageCount)} free analyses left • No login required`}
             </p>
           </div>
         </div>
