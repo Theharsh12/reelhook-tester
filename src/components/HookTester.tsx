@@ -224,6 +224,35 @@ export function HookTester() {
 
   return (
     <div className="w-full max-w-xl mx-auto px-1 sm:px-0">
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+
+      {/* User status bar */}
+      {user ? (
+        <div className="mb-4 flex items-center justify-between px-1">
+          <p className="text-xs text-muted-foreground">
+            Signed in as <span className="text-foreground font-medium">{user.email}</span>
+          </p>
+          <button
+            onClick={signOut}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sign out
+          </button>
+        </div>
+      ) : usageCount > 0 ? (
+        <div className="mb-4 px-1">
+          <p className="text-xs text-muted-foreground text-center">
+            {usageCount >= FREE_LIMIT ? (
+              <button onClick={() => setShowAuthModal(true)} className="text-primary hover:underline font-medium">
+                Sign up free to unlock unlimited analyses
+              </button>
+            ) : (
+              <>{FREE_LIMIT - usageCount} free {FREE_LIMIT - usageCount === 1 ? "analysis" : "analyses"} remaining</>
+            )}
+          </p>
+        </div>
+      ) : null}
       {/* History Panel */}
       {showHistory && (
         <div className="mb-6 bg-card rounded-2xl shadow-card border border-border p-6 animate-fade-in">
