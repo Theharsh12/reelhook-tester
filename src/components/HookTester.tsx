@@ -152,6 +152,13 @@ export function HookTester() {
         triggerConfetti();
       }
       
+      // Track usage for anonymous users
+      if (!user) {
+        const newCount = usageCount + 1;
+        setUsageCount(newCount);
+        localStorage.setItem(USAGE_KEY, newCount.toString());
+      }
+      
       // Save to history with compatible format
       await saveToHistory(hook.trim(), {
         score: hookResult.score,
