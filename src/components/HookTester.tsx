@@ -1,11 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2, AlertTriangle, ArrowRight } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2, AlertTriangle, ArrowRight, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/AuthModal";
 import confetti from "canvas-confetti";
+
+const FREE_LIMIT = 3;
+const USAGE_KEY = "hook-analyze-count";
 
 interface HookResult {
   score: number;
@@ -47,8 +52,17 @@ export function HookTester() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [usageCount, setUsageCount] = useState(0);
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
   const { history, saveToHistory, deleteFromHistory, clearHistory, loading: historyLoading } = useHookHistory();
+
+  // Load usage count from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(USAGE_KEY);
+    if (stored) setUsageCount(parseInt(stored, 10) || 0);
+  }, []);
 
   const triggerConfetti = useCallback(() => {
     confetti({
@@ -109,6 +123,12 @@ export function HookTester() {
   const handleTest = async () => {
     if (!hook.trim()) return;
     
+    // Check if user needs to authenticate
+    if (!user && usageCount >= FREE_LIMIT) {
+      setShowAuthModal(true);
+      return;
+    }
+    
     setIsAnalyzing(true);
     setResult(null);
 
@@ -130,6 +150,13 @@ export function HookTester() {
       
       if (hookResult.score > 80) {
         triggerConfetti();
+      }
+      
+      // Track usage for anonymous users
+      if (!user) {
+        const newCount = usageCount + 1;
+        setUsageCount(newCount);
+        localStorage.setItem(USAGE_KEY, newCount.toString());
       }
       
       // Save to history with compatible format
@@ -197,6 +224,35 @@ export function HookTester() {
 
   return (
     <div className="w-full max-w-xl mx-auto px-1 sm:px-0">
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+
+      {/* User status bar */}
+      {user ? (
+        <div className="mb-4 flex items-center justify-between px-1">
+          <p className="text-xs text-muted-foreground">
+            Signed in as <span className="text-foreground font-medium">{user.email}</span>
+          </p>
+          <button
+            onClick={signOut}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sign out
+          </button>
+        </div>
+      ) : usageCount > 0 ? (
+        <div className="mb-4 px-1">
+          <p className="text-xs text-muted-foreground text-center">
+            {usageCount >= FREE_LIMIT ? (
+              <button onClick={() => setShowAuthModal(true)} className="text-primary hover:underline font-medium">
+                Sign up free to unlock unlimited analyses
+              </button>
+            ) : (
+              <>{FREE_LIMIT - usageCount} free {FREE_LIMIT - usageCount === 1 ? "analysis" : "analyses"} remaining</>
+            )}
+          </p>
+        </div>
+      ) : null}
       {/* History Panel */}
       {showHistory && (
         <div className="mb-6 bg-card rounded-2xl shadow-card border border-border p-6 animate-fade-in">
@@ -331,7 +387,7 @@ export function HookTester() {
               </Button>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground text-center">
-              No login • Free • Instant result
+              {user ? "Unlimited analyses • Signed in" : `${Math.max(0, FREE_LIMIT - usageCount)} free analyses left • No login required`}
             </p>
           </div>
         </div>
