@@ -1,11 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2, AlertTriangle, ArrowRight } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, AlertCircle, Lightbulb, Copy, Check, History, Trash2, X, Share2, AlertTriangle, ArrowRight, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHookHistory } from "@/hooks/useHookHistory";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/AuthModal";
 import confetti from "canvas-confetti";
+
+const FREE_LIMIT = 3;
+const USAGE_KEY = "hook-analyze-count";
 
 interface HookResult {
   score: number;
