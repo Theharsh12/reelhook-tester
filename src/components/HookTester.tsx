@@ -123,6 +123,12 @@ export function HookTester() {
   const handleTest = async () => {
     if (!hook.trim()) return;
     
+    // Check if user needs to authenticate
+    if (!user && usageCount >= FREE_LIMIT) {
+      setShowAuthModal(true);
+      return;
+    }
+    
     setIsAnalyzing(true);
     setResult(null);
 
