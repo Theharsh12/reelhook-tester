@@ -1,6 +1,9 @@
 import { HookTester } from "@/components/HookTester";
-import { Instagram, Zap, Target, BarChart3, ChevronDown, Lightbulb, MessageCircle, Eye, Flame, Clock } from "lucide-react";
+import { AuthModal } from "@/components/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { Instagram, Zap, Target, BarChart3, ChevronDown, Lightbulb, MessageCircle, Eye, Flame, Clock, LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const faqs = [
   {
