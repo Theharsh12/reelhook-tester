@@ -22,9 +22,27 @@ const faqs = [
 
 const Index = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Top-right auth button */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+        {user ? (
+          <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Sign out</span>
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" onClick={() => setShowAuth(true)} className="gap-2">
+            <LogIn className="w-4 h-4" />
+            <span className="hidden sm:inline">Login / Sign up</span>
+          </Button>
+        )}
+      </div>
+
+      <AuthModal open={showAuth} onOpenChange={setShowAuth} />
       {/* Background glow effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
