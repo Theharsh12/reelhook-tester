@@ -1,11 +1,11 @@
 # Hooktester - Instagram Reel Hook Analyzer
-# https://testyourreelhook.lovable.app
+# https://testyourreelhook.vercel.app
 
 User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://testyourreelhook.lovable.app/sitemap.xml
+Sitemap: https://testyourreelhook.vercel.app/sitemap.xml
 
 # Disallow non-essential paths
 Disallow: /api/
