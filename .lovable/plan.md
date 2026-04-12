@@ -17,7 +17,7 @@ I noticed the URLs are inconsistent across the file. I'll standardize everything
 
 | Location | Current URL | Will Change To |
 |----------|-------------|----------------|
-| og:url | testyourreelhook.lovable.app | reelhook-tester.lovable.app |
+| og:url | testyourreelhook.vercel.app | reelhook-tester.lovable.app |
 | og:image | testyourreelhook.lovable.app | reelhook-tester.lovable.app |
 | twitter:image | testyourreelhook.lovable.app | reelhook-tester.lovable.app |
 | Structured data URL | reelhook.tester.lovable.app | reelhook-tester.lovable.app |
