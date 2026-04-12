@@ -16,7 +16,7 @@ const allowedOrigins = [
   'http://localhost:8081',
   'http://localhost:5173',
   'https://lovable.dev',
-  'https://reelhook-tester.netlify.app',
+  'https://testyourreelhook.vercel.app',
 ];
 
 function getCorsHeaders(origin: string | null): Record<string, string> {
@@ -26,7 +26,7 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     origin.endsWith('.lovable.dev') ||
     origin.endsWith('.lovableproject.com') ||
     origin.endsWith('.lovable.app') ||
-    origin.endsWith('.netlify.app')
+    origin.endsWith('.vercel.app')
   );
   
   return {
