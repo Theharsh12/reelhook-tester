@@ -9,49 +9,50 @@
 
 @layer base {
   :root {
-    --background: 240 15% 8%;
-    --foreground: 0 0% 95%;
+    --background: 240 15% 6%;
+    --foreground: 0 0% 96%;
 
-    --card: 240 12% 12%;
-    --card-foreground: 0 0% 95%;
+    --card: 240 12% 10%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 240 12% 12%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 240 12% 10%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 280 100% 65%;
+    --primary: 330 90% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 10% 18%;
+    --secondary: 240 10% 14%;
     --secondary-foreground: 0 0% 90%;
 
-    --muted: 240 10% 20%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 240 10% 18%;
+    --muted-foreground: 240 5% 50%;
 
-    --accent: 180 100% 50%;
-    --accent-foreground: 240 15% 8%;
+    --accent: 270 80% 65%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 20%;
-    --input: 240 10% 18%;
-    --ring: 280 100% 65%;
+    --border: 240 10% 16%;
+    --input: 240 10% 14%;
+    --ring: 330 90% 60%;
 
     --radius: 1rem;
 
     /* Custom tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(280 100% 65%), hsl(180 100% 50%));
-    --gradient-subtle: linear-gradient(180deg, hsl(240 15% 8%), hsl(240 12% 12%));
-    --shadow-card: 0 4px 24px -4px hsl(280 100% 65% / 0.15);
-    --shadow-hover: 0 8px 32px -4px hsl(280 100% 65% / 0.25);
-    --glow-primary: 0 0 20px hsl(280 100% 65% / 0.4);
-    --glow-accent: 0 0 20px hsl(180 100% 50% / 0.4);
+    --gradient-primary: linear-gradient(135deg, hsl(330 90% 60%), hsl(270 80% 65%), hsl(200 90% 55%));
+    --gradient-warm: linear-gradient(135deg, hsl(330 90% 60%), hsl(20 90% 60%));
+    --gradient-subtle: linear-gradient(180deg, hsl(240 15% 6%), hsl(240 12% 10%));
+    --shadow-card: 0 4px 24px -4px hsl(330 90% 60% / 0.1);
+    --shadow-hover: 0 8px 40px -4px hsl(330 90% 60% / 0.2);
+    --glow-primary: 0 0 30px hsl(330 90% 60% / 0.3);
+    --glow-accent: 0 0 30px hsl(270 80% 65% / 0.3);
 
     /* Strength colors */
     --strength-weak: 0 72% 51%;
     --strength-average: 45 93% 55%;
     --strength-strong: 160 100% 45%;
-    --strength-viral: 280 100% 65%;
+    --strength-viral: 330 90% 60%;
   }
 }
 
@@ -76,6 +77,10 @@
     background-image: var(--gradient-primary);
   }
 
+  .gradient-warm {
+    background-image: var(--gradient-warm);
+  }
+
   .glow-primary {
     box-shadow: var(--glow-primary);
   }
@@ -84,46 +89,72 @@
     box-shadow: var(--glow-accent);
   }
 
+  .glass {
+    background: hsl(240 12% 10% / 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glass-border {
+    border: 1px solid hsl(0 0% 100% / 0.06);
+  }
+
+  .noise {
+    position: relative;
+  }
+
+  .noise::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+    animation: fadeIn 0.6s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .animate-scale-in {
-    animation: scaleIn 0.3s ease-out forwards;
+    animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulseSlow 4s ease-in-out infinite;
   }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulseSlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
