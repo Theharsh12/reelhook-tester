@@ -8,7 +8,7 @@ Adding a canonical URL meta tag to prevent duplicate content issues and consolid
 
 **Add the canonical link tag** after the favicon and before the Open Graph tags:
 ```html
-<link rel="canonical" href="https://reelhook-tester.lovable.app/" />
+<link rel="canonical" href="https://testyourreelhook.vercel.app/" />
 ```
 
 ### URL Consistency Fix
