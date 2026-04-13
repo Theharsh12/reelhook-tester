@@ -162,6 +162,29 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           <Button type="submit" variant="gradient" className="w-full" disabled={loading}>
             {loading ? "Please wait..." : mode === "signup" ? "Sign Up Free" : "Sign In"}
           </Button>
+
+          {mode === "login" && (
+            <button
+              type="button"
+              onClick={async () => {
+                if (!email) {
+                  toast({ title: "Enter your email first", variant: "destructive" });
+                  return;
+                }
+                try {
+                  await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/reset-password`,
+                  });
+                  toast({ title: "Check your email", description: "We sent you a password reset link." });
+                } catch (err) {
+                  toast({ title: "Error", description: "Failed to send reset email", variant: "destructive" });
+                }
+              }}
+              className="text-xs text-primary hover:underline"
+            >
+              Forgot password?
+            </button>
+          )}
         </form>
 
         <p className="text-center text-xs text-muted-foreground mt-2">

@@ -76,6 +76,41 @@ export type Database = {
         }
         Relationships: []
       }
+      public_hooks: {
+        Row: {
+          hook: string
+          id: string
+          score: number
+          shared_at: string
+          user_id: string
+          verdict: string
+        }
+        Insert: {
+          hook: string
+          id?: string
+          score: number
+          shared_at?: string
+          user_id: string
+          verdict: string
+        }
+        Update: {
+          hook?: string
+          id?: string
+          score?: number
+          shared_at?: string
+          user_id?: string
+          verdict?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_hooks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

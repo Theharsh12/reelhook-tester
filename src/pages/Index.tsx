@@ -1,8 +1,9 @@
 import { HookTester } from "@/components/HookTester";
 import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, BarChart3, Trophy } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
@@ -16,8 +17,22 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden noise">
-      {/* Auth button */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+      {/* Nav bar */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 flex items-center gap-2">
+        <Link to="/leaderboard">
+          <Button variant="ghost" size="sm" className="gap-1.5 glass glass-border rounded-full px-3">
+            <Trophy className="w-4 h-4" />
+            <span className="hidden sm:inline">Leaderboard</span>
+          </Button>
+        </Link>
+        {user && (
+          <Link to="/dashboard">
+            <Button variant="ghost" size="sm" className="gap-1.5 glass glass-border rounded-full px-3">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </Button>
+          </Link>
+        )}
         {user ? (
           <Button variant="ghost" size="sm" onClick={signOut} className="gap-2 glass glass-border rounded-full px-4">
             <LogOut className="w-4 h-4" />
