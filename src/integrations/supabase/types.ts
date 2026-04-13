@@ -76,6 +76,33 @@ export type Database = {
         }
         Relationships: []
       }
+      public_hooks: {
+        Row: {
+          hook: string
+          id: string
+          score: number
+          shared_at: string
+          user_id: string
+          verdict: string
+        }
+        Insert: {
+          hook: string
+          id?: string
+          score: number
+          shared_at?: string
+          user_id: string
+          verdict: string
+        }
+        Update: {
+          hook?: string
+          id?: string
+          score?: number
+          shared_at?: string
+          user_id?: string
+          verdict?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
