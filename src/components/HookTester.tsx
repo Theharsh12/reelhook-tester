@@ -413,28 +413,6 @@ export function HookTester() {
                 <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="font-medium text-xs sm:text-sm">Share</span>
               </button>
-              {user && result.score >= 60 && (
-                <button
-                  onClick={async () => {
-                    try {
-                      const { error } = await supabase.from("public_hooks").insert({
-                        user_id: user.id,
-                        hook: hook.trim(),
-                        score: result.score,
-                        verdict: result.verdict,
-                      });
-                      if (error) throw error;
-                      toast({ title: "Shared to Leaderboard! 🏆", description: "Your hook is now on the community leaderboard." });
-                    } catch (err) {
-                      toast({ title: "Already shared or error", description: "This hook may already be on the leaderboard.", variant: "destructive" });
-                    }
-                  }}
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-strength-viral/10 text-strength-viral hover:bg-strength-viral/20 transition-colors"
-                >
-                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="font-medium text-xs sm:text-sm">Leaderboard</span>
-                </button>
-              )}
             </div>
           </div>
 
